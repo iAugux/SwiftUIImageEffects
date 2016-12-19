@@ -105,6 +105,7 @@ import UIKit
 import Accelerate
 
 public extension UIImage {
+
     public func applyLightEffect() -> UIImage? {
         return applyBlurWithRadius(30, tintColor: UIColor(white: 1.0, alpha: 0.3), saturationDeltaFactor: 1.8)
     }
@@ -141,7 +142,20 @@ public extension UIImage {
         return applyBlurWithRadius(10, tintColor: effectColor, saturationDeltaFactor: -1.0, maskImage: nil)
     }
 
+    public func blur() -> UIImage? {
+        return applyBlurWithRadius(20, tintColor: UIColor(white: 0, alpha: 0), saturationDeltaFactor: 1.4)
+    }
+
+    public func blurImageWithRadius(_ radius: CGFloat) -> UIImage? {
+        return applyBlurWithRadius(radius, tintColor: UIColor(white: 0, alpha: 0), saturationDeltaFactor: 1.4)
+    }
+
+    public func blurImageWithMask(_ mask: UIImage) -> UIImage? {
+        return applyBlurWithRadius(20, tintColor: UIColor(white: 0, alpha: 0), saturationDeltaFactor: 1.4, maskImage: mask)
+    }
+
     public func applyBlurWithRadius(_ blurRadius: CGFloat, tintColor: UIColor?, saturationDeltaFactor: CGFloat, maskImage: UIImage? = nil) -> UIImage? {
+
         // Check pre-conditions.
         if (size.width < 1 || size.height < 1) {
             print("*** error: invalid size: \(size.width) x \(size.height). Both dimensions must be >= 1: \(self)")
@@ -292,5 +306,29 @@ public extension UIImage {
         UIGraphicsEndImageContext()
         
         return outputImage
+    }
+
+    public func grayScale() -> UIImage? {
+
+        let width = Int(size.width)
+        let height = Int(size.height)
+
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+
+        let context = CGContext(data: nil,
+                                width: width,
+                                height: height,
+                                bitsPerComponent: 8,
+                                bytesPerRow: 0,
+                                space: colorSpace,
+                                bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        
+        guard let cxt = context, let img = cgImage else { return nil }
+        
+        cxt.draw(img, in: CGRect(x: 0, y: 0, width: width, height: height))
+        
+        guard let image = cxt.makeImage() else { return nil }
+        
+        return UIImage(cgImage: image)
     }
 }
